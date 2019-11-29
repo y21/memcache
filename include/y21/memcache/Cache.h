@@ -1,3 +1,6 @@
+// memcache
+// Copyright (c) 2019 y21 - All rights reserved
+// MIT License
 #ifndef __MEMCACHE_CACHE_H__
 #define __MEMCACHE_CACHE_H__
 
