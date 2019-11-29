@@ -4,7 +4,7 @@
 using namespace memcache;
 
 int main() {
-    Cache<int> a(4, true, 10000);
+    Cache<int> a(4, true, 5);
     a.add("/bruh", 1);
     a.add("/aa", 2);
     a.add("/bb", 3);
@@ -13,4 +13,8 @@ int main() {
     std::cout << a.get("/bruh").value << std::endl;
     std::cout << a["/bruh"].value << std::endl;
     std::cout << a.expired(a["/bruh"]) << std::endl;
+    std::cout << a.get("/bruh").value;
+
+    getchar();
+    std::cout << a.get("/bruh").value;
 }

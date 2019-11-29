@@ -48,7 +48,12 @@ namespace memcache {
 
             CacheEntry<T>& get(std::string key) {
                 std::string rKey = this->ignoreQuery ? this->removeQuery(key) : key;
-                return this->internal_cache[rKey];
+                CacheEntry<T>& entry = this->internal_cache[rKey];
+                if (this->expired(entry)) {
+                    throw new std::runtime_error("Requested cache entry is no longer available due to cache limit");
+                } else {
+                    return entry;
+                }
             }
 
             CacheEntry<T>& operator[](std::string key) {
@@ -56,9 +61,11 @@ namespace memcache {
             }
 
             static std::string removeQuery(std::string query) {
-                for (int i = 0; i < query.length(); ++i)
-                    if (query.at(i) == '?')
+                for (int i = 0; i < query.length(); ++i) {
+                    if (query.at(i) == '?') {
                         return query.substr(0, i);
+                    }
+                }
                 return query;
             }
             
