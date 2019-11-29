@@ -8,9 +8,21 @@
 
 namespace memcache {
     template<typename T>
+    struct CacheEntry {
+        time_t cachedAt;
+        T value;
+        CacheEntry(T val): cachedAt(time(NULL)), value(val) {
+
+        }
+        CacheEntry(): cachedAt(time(NULL)) {
+
+        }
+    };
+
+    template<typename T>
     class Cache {
         private:
-            std::map<std::string, T> internal_cache;
+            std::map<std::string, CacheEntry<T>> internal_cache;
             uint16_t cacheLimit;
             bool ignoreQuery;
             time_t expires;
@@ -23,21 +35,22 @@ namespace memcache {
                 return this->internal_cache.count(key) > 0;
             }
 
-            T& add(std::string key, T val) {
+            CacheEntry<T> add(std::string key, T val) {
                 std::string rKey = this->ignoreQuery ? this->removeQuery(key) : key;
                 if (this->cacheLimit == 0 || this->internal_cache.size() <= this->cacheLimit) {
-                    this->internal_cache[rKey] = val;
+                    CacheEntry<T> temp(val);
+                    return this->internal_cache[rKey] = temp;
                 } else {
                     throw new std::length_error("Cache limit exceeded");
                 }
             }
 
-            T& get(std::string key) {
+            CacheEntry<T>& get(std::string key) {
                 std::string rKey = this->ignoreQuery ? this->removeQuery(key) : key;
                 return this->internal_cache[rKey];
             }
 
-            T& operator[](std::string key) {
+            CacheEntry<T>& operator[](std::string key) {
                 return this->get(key);
             }
 

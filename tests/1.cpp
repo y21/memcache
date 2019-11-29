@@ -8,5 +8,6 @@ int main() {
     a.add("/bruh", 1);
     a.add("/aa", 2);
     a.add("/bb", 3);
-    std::cout << a.get("/bruh?q=1") << std::endl << a.get("/bruh");
+
+    std::cout << a.get("/bruh?q=1").value << std::endl << a.get("/bruh").value;
 }
