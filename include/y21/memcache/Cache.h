@@ -11,6 +11,7 @@ namespace memcache {
     struct CacheEntry {
         time_t cachedAt;
         T value;
+
         CacheEntry(T val): cachedAt(time(NULL)), value(val) {
 
         }
@@ -59,6 +60,10 @@ namespace memcache {
                     if (query.at(i) == '?')
                         return query.substr(0, i);
                 return query;
+            }
+            
+            bool expired(CacheEntry<T>& e) {
+                return time(NULL) - e.cachedAt > this->expires;
             }
     };
 }

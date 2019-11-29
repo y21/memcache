@@ -12,4 +12,5 @@ int main() {
     std::cout << a.add("wtf", 11).value << std::endl;
     std::cout << a.get("/bruh").value << std::endl;
     std::cout << a["/bruh"].value << std::endl;
+    std::cout << a.expired(a["/bruh"]) << std::endl;
 }
