@@ -9,5 +9,7 @@ int main() {
     a.add("/aa", 2);
     a.add("/bb", 3);
 
-    std::cout << a.get("/bruh?q=1").value << std::endl << a.get("/bruh").value;
+    std::cout << a.add("wtf", 11).value << std::endl;
+    std::cout << a.get("/bruh").value << std::endl;
+    std::cout << a["/bruh"].value << std::endl;
 }
