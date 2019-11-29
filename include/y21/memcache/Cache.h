@@ -65,14 +65,36 @@ namespace memcache {
             /// @brief For how long each entry should be cached (in seconds)
             time_t expires;
         public:
+            /**
+             * Constructor for creating cache objects
+             *
+             * @param cacheLimit The maximum number of cache elements this cache is able to hold
+             * @param ignoreQuery Whether query parameters (?key=value) should be ignored
+             * @param expires For how long each entry should be cached (in seconds)
+             */
             Cache(uint16_t cacheLimit, bool ignoreQuery, time_t expires): cacheLimit(cacheLimit), ignoreQuery(ignoreQuery), expires(expires) {
 
             }
 
+            /**
+             * Checks whether a given key is cached
+             *
+             * @returns Whether a key is in cache
+             */
             bool has(std::string key) {
                 return this->internal_cache.count(key) > 0;
             }
 
+            /**
+             * Adds an element to the cache
+             *
+             * You must not create a CacheEntry object yourself and pass it as parameter.
+             * Instead, you simply pass the key and value. This library will automatically create a cache entry and stores it
+             * @param key The key of this element
+             * @param val The value of this element
+             * @exception length_error Cache limit exceeded
+             * @returns A reference to the CacheEntry object that is stored in cache
+             */
             CacheEntry<T> add(std::string key, T val) {
                 std::string rKey = this->ignoreQuery ? this->removeQuery(key) : key;
                 if (this->cacheLimit == 0 || this->internal_cache.size() <= this->cacheLimit) {
@@ -83,6 +105,13 @@ namespace memcache {
                 }
             }
 
+            /**
+             * Gets an element by its key
+             *
+             * @exception runtime_error Cache entry expired
+             * @param key The key to search for
+             * @returns A reference to the Cache Entry object
+             */
             CacheEntry<T>& get(std::string key) {
                 std::string rKey = this->ignoreQuery ? this->removeQuery(key) : key;
                 CacheEntry<T>& entry = this->internal_cache[rKey];
@@ -93,10 +122,24 @@ namespace memcache {
                 }
             }
 
+            /**
+             * Same as `get()`: gets an element by its key
+             *
+             * Overloaded operator[] for convenience
+             * @param key The key to search for
+             * @returns A reference to the Cache Entry object
+             */
             CacheEntry<T>& operator[](std::string key) {
                 return this->get(key);
             }
 
+            /**
+             * Removes query parameters off of a string
+             *
+             * This is used internally to ignore queries if `this->ignoreQuery` is set to true
+             * @param query The string to operate on
+             * @returns A new string without query parameters
+             */
             static std::string removeQuery(std::string query) {
                 for (int i = 0; i < query.length(); ++i) {
                     if (query.at(i) == '?') {
@@ -106,6 +149,13 @@ namespace memcache {
                 return query;
             }
             
+            /**
+             * Checks whether a cache element has expired or is still valid
+             *
+             * If you are unsure whether an entry is still cached or has already been removed from the cache, use this method before using `get` or `operator[]`.
+             * @param e The CacheEntry object that should be checked
+             * @returns Whether it is still valid
+             */
             bool expired(CacheEntry<T>& e) {
                 return time(NULL) - e.cachedAt > this->expires;
             }
