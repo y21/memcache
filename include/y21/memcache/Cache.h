@@ -24,17 +24,28 @@ namespace memcache {
             }
 
             T& add(std::string key, T val) {
+                std::string rKey = this->ignoreQuery ? this->removeQuery(key) : key;
                 if (this->cacheLimit == 0 || this->internal_cache.size() <= this->cacheLimit) {
-                    this->internal_cache[key] = val;
+                    this->internal_cache[rKey] = val;
                 } else {
                     throw new std::length_error("Cache limit exceeded");
                 }
+            }
+
+            T& get(std::string key) {
+                std::string rKey = this->ignoreQuery ? this->removeQuery(key) : key;
+                return this->internal_cache[rKey];
+            }
+
+            T& operator[](std::string key) {
+                return this->get(key);
             }
 
             static std::string removeQuery(std::string query) {
                 for (int i = 0; i < query.length(); ++i)
                     if (query.at(i) == '?')
                         return query.substr(0, i);
+                return query;
             }
     };
 }
